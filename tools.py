@@ -74,13 +74,24 @@ class state:
         self.U = FH.U.copy()
         self.V = FH.V.copy()
         self.L = FH.L
-    
-    def time_step(self, dt, FH):
-        W = np.zeros((2*self.L,self.L))
-        W[:self.L,:] = self.U
-        W[self.L:,:] = self.V
-        return expm_multiply(-1j*FH.H*dt, W)
+        self.W = np.zeros((2*self.L,self.L),complex)
+        self.setWfromUV()
         
+    def setWfromUV(self):
+        self.W[:self.L,:] = self.U
+        self.W[self.L:,:] = self.V
+    def setUVfromW(self):
+        self.U = self.W[:self.L,:]
+        self.V = self.W[self.L:,:]
+        
+    def time_step(self, dt, FH):
+        self.W = expm_multiply(-1j*2*FH.H*dt, self.W)
+        
+    def correlation_function(self):
+        self.setUVfromW()
+        G = self.U@self.U.conj().T
+        F = self.U@self.V.conj().T
+        M = np.eye(self.L)-2*(G+F)
         
         
         
