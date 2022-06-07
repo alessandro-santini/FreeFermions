@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from scipy.sparse.linalg import expm_multiply
 
 class FermionicHamiltonian:
@@ -6,7 +7,7 @@ class FermionicHamiltonian:
         """
         Initialize the general fermionic quadratic hamiltonian defined as
         
-        H = \sum_{ij} 2A_{ij} c^\dagger_i c_j + \sum_{ij} B_{ij} c^\dagger_i c^\dagger_j + B^*_{ij} c_i c_j
+        H = \sum_{ij} A_{ij} (c^\dagger_i c_j - c_i c^\dagger_j) + \sum_{ij} B_{ij} c^\dagger_i c^\dagger_j + B^*_{ij} c_i c_j
         
         Parameters
         ----------
@@ -62,7 +63,7 @@ class FermionicHamiltonian:
        res_2   = np.linalg.norm(self.H@self.Swap@w - eig[-1]*self.Swap@w)
        if (res_1 > 10**-11 or res_2 > 10**-11):
           print("WARNING: there are problems in the redefinition of the zero energy eigenstates")
-      self.eigs, self.U, self.V = eig[:L],  W[:L,:L], W[L:,:L]
+      self.eigs, self.U, self.V, self.W = eig[:L],  W[:L,:L], W[L:,:L], W
 
 class state:
     def __init__(self, H: FermionicHamiltonian = None):
@@ -71,6 +72,7 @@ class state:
             
     def initialize_from_hamiltonian(self, FH: FermionicHamiltonian):
         FH.diagonalize()
+        self.FH0 = copy.deepcopy(FH)
         self.U = FH.U.copy()
         self.V = FH.V.copy()
         self.L = FH.L
@@ -83,15 +85,12 @@ class state:
     def setUVfromW(self):
         self.U = self.W[:self.L,:]
         self.V = self.W[self.L:,:]
+    
+    def energy(self, H: FermionicHamiltonian):
+        self.set_correlation_function()
+        return np.real_if_close(np.einsum('ij,ij',-H.A,self.G-(np.eye(self.L)-self.G.conj())) + np.einsum('ij,ij',H.B, self.F.conj().T-self.F)   )
         
-    def time_step(self, dt, FH):
-        self.W = expm_multiply(-1j*2*FH.H*dt, self.W)
-        
-    def correlation_function(self):
-        self.setUVfromW()
-        G = self.U@self.U.conj().T
-        F = self.U@self.V.conj().T
-        M = np.eye(self.L)-2*(G+F)
-        
-        
-        
+    def set_correlation_function(self):
+        self.G = self.U@self.U.conj().T
+        self.F = self.U@self.V.conj().T
+        self.M = np.eye(self.L)-2*(self.G+self.F)
