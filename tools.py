@@ -41,6 +41,8 @@ class FermionicHamiltonian:
         
     def diagonalize(self):
       eig, W = np.linalg.eigh(self.H)
+      self.eigs_complete, self.W =  eig.copy(), W.copy()
+
       L = self.L
           
       eig = np.roll(eig, L)
@@ -63,7 +65,7 @@ class FermionicHamiltonian:
        res_2   = np.linalg.norm(self.H@self.Swap@w - eig[-1]*self.Swap@w)
        if (res_1 > 10**-11 or res_2 > 10**-11):
           print("WARNING: there are problems in the redefinition of the zero energy eigenstates")
-      self.eigs, self.U, self.V, self.W = eig[:L],  W[:L,:L], W[L:,:L], W
+      self.eigs, self.U, self.V = eig[:L],  W[:L,:L], W[L:,:L]
 
 class state:
     def __init__(self, H: FermionicHamiltonian = None):
