@@ -41,7 +41,7 @@ class FermionicHamiltonian:
         
     def diagonalize(self):
       eig, W = np.linalg.eigh(self.H)
-      self.eigs_complete, self.W =  eig.copy(), W.copy()
+      self.eigs_complete, self.W = eig.copy(), W.copy()
 
       L = self.L
           
@@ -67,19 +67,22 @@ class FermionicHamiltonian:
           print("WARNING: there are problems in the redefinition of the zero energy eigenstates")
       self.eigs, self.U, self.V = eig[:L],  W[:L,:L], W[L:,:L]
 
-class state:
+class correlation_functions:
     def __init__(self, H: FermionicHamiltonian = None):
         if H is not None:
             self.initialize_from_hamiltonian(H)
             
     def initialize_from_hamiltonian(self, FH: FermionicHamiltonian):
         FH.diagonalize()
-        self.FH0 = copy.deepcopy(FH)
         self.U = FH.U.copy()
         self.V = FH.V.copy()
+        self.W = FH.W.copy()
         self.L = FH.L
-        self.W = np.zeros((2*self.L,self.L),complex)
-        self.setWfromUV()
+        
+    def set_UV(self,U,V):
+        self.U,self.V = U.copy(),V.copy()
+    def set_W(self,W):
+        self.W = W.copy()
         
     def setWfromUV(self):
         self.W[:self.L,:] = self.U
