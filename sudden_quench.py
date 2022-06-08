@@ -11,7 +11,7 @@ class sudden_quench:
         self.H0, self.H1 = H0, H1
         self.W0 = copy.deepcopy(H0.W)
         self.eigs1, self.W1 = H1.eigs_complete, H1.W
-        self.corr = correlation_functions()
+        self.corr = correlation_functions(H0)
         
     def time_evolve(self,t: float):
         self.Wt = self.W1 @ np.diag(np.exp(-1j*2*(self.eigs1)*t)) @ self.W1.T.conj() @ self.W0
@@ -22,4 +22,6 @@ class sudden_quench:
         if H1 is None:
             return self.corr.energy(self.H1)
         
-    
+    def set_correlation_functions(self):
+        self.corr.setUVfromW()
+        self.corr.set_correlation_functions()

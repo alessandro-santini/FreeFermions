@@ -92,10 +92,9 @@ class correlation_functions:
         self.V = self.W[self.L:,:]
     
     def energy(self, H: FermionicHamiltonian):
-        self.set_correlation_function()
         return np.real_if_close(np.einsum('ij,ij',-H.A,self.G-(np.eye(self.L)-self.G.conj())) + np.einsum('ij,ij',H.B, self.F.conj().T-self.F)   )
         
-    def set_correlation_function(self):
+    def set_correlation_functions(self):
         self.G = self.U@self.U.conj().T
         self.F = self.U@self.V.conj().T
         self.M = np.eye(self.L)-2*(self.G+self.F)
