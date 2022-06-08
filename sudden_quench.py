@@ -1,7 +1,7 @@
 from .tools import FermionicHamiltonian
 from .tools import correlation_functions
 import numpy as np
-import copy
+from scipy.sparse.linalg import expm
 
 
 class sudden_quench:
@@ -9,18 +9,20 @@ class sudden_quench:
         H0.diagonalize()
         H1.diagonalize()
         self.H0, self.H1 = H0, H1
-        self.W0 = copy.deepcopy(H0.W)
         self.eigs1, self.W1 = H1.eigs_complete, H1.W
         self.corr = correlation_functions(H0)
-        
+        self.w0 = self.H0.w.copy()
+            
     def time_evolve(self,t: float):
-        self.Wt = self.W1 @ np.diag(np.exp(-1j*2*(self.eigs1)*t)) @ self.W1.T.conj() @ self.W0
-        self.corr.set_W(self.Wt)
-        
+        self.wt = self.W1 @ expm(-1j*2.*np.diag(self.eigs1)*t) @ self.W1.T.conj() @ self.w0
+        self.corr.set_W(self.wt)
+    
     def energy(self, H1=None):
         self.corr.setUVfromW()
         if H1 is None:
             return self.corr.energy(self.H1)
+        else:
+            return self.corr.energy(H1)
         
     def set_correlation_functions(self):
         self.corr.setUVfromW()

@@ -66,7 +66,8 @@ class FermionicHamiltonian:
        if (res_1 > 10**-11 or res_2 > 10**-11):
           print("WARNING: there are problems in the redefinition of the zero energy eigenstates")
       self.eigs, self.U, self.V = eig[:L],  W[:L,:L], W[L:,:L]
-
+      self.w = np.zeros((2*L,L)); self.w[:L,:] = self.U; self.w[L:,:] = self.V
+      
 class correlation_functions:
     def __init__(self, H: FermionicHamiltonian = None):
         if H is not None:
@@ -80,7 +81,7 @@ class correlation_functions:
         self.L = FH.L
         
     def set_UV(self,U,V):
-        self.U,self.V = U.copy(),V.copy()
+        self.U,self.V = U.copy(), V.copy()
     def set_W(self,W):
         self.W = W.copy()
         
@@ -90,9 +91,9 @@ class correlation_functions:
     def setUVfromW(self):
         self.U = self.W[:self.L,:]
         self.V = self.W[self.L:,:]
-    
+    self
     def energy(self, H: FermionicHamiltonian):
-        return np.real_if_close(np.einsum('ij,ij',-H.A,self.G-(np.eye(self.L)-self.G.conj())) + np.einsum('ij,ij',H.B, self.F.conj().T-self.F)   )
+        return np.real_if_close(np.einsum('ij,ij',-H.A,self.G-(np.eye(.L)-self.G.conj())) + np.einsum('ij,ij',H.B, self.F.conj().T-self.F)   )
         
     def set_correlation_functions(self):
         self.G = self.U@self.U.conj().T
