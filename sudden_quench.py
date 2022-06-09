@@ -14,7 +14,12 @@ class sudden_quench:
         self.w0 = self.H0.w.copy()
         self.time_evolve(0.)
         self.L = self.H0.L
-        
+    
+    def set_H1(self,H1):
+        H1.diagonalize()
+        self.H1 = H1
+        self.eigs1, self.W1 = H1.eigs_complete, H1.W
+    
     def time_evolve(self,t: float):
         self.wt = self.W1 @ expm(-1j*2.*np.diag(self.eigs1)*t) @ self.W1.T.conj() @ self.w0
         self.corr.set_W(self.wt)
