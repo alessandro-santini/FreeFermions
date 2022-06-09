@@ -54,8 +54,8 @@ def KitaevHamiltonian(L,h,alpha,J=1):
     return FermionicHamiltonian(A, B)
 
 def QuantumDysonHamiltonian(N,sigma,h,J=1):
-    if isinstance(h, (float,int)): h = np.ones(L)*h
     L = 2**N
+    if isinstance(h, (float,int)): h = np.ones(L)*h
     # Build coupling matrix
     real_states = [np.vectorize(np.binary_repr)(np.arange(2**N),N)][0]
     t = np.array([2.**( - (1 + sigma)*k ) for k in np.arange(0, N) ])
@@ -70,7 +70,7 @@ def QuantumDysonHamiltonian(N,sigma,h,J=1):
                     V[i,j] = t[(N-k-1)]
     
     V = -J*V
-    A = np.diag(h, k=0) - .5*V
+    A = np.diag(h, k=0) - V/2
     B = -np.triu(V/2)+np.triu(V/2).T
     return FermionicHamiltonian(A, B)
 

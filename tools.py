@@ -1,6 +1,5 @@
 import numpy as np
-import copy
-from scipy.sparse.linalg import expm_multiply
+from scipy.special import xlogy
 
 class FermionicHamiltonian:
     def __init__(self, A: np.ndarray, B: np.ndarray):
@@ -91,11 +90,29 @@ class correlation_functions:
     def setUVfromW(self):
         self.U = self.W[:self.L,:]
         self.V = self.W[self.L:,:]
-    self
+
     def energy(self, H: FermionicHamiltonian):
-        return np.real_if_close(np.einsum('ij,ij',-H.A,self.G-(np.eye(.L)-self.G.conj())) + np.einsum('ij,ij',H.B, self.F.conj().T-self.F)   )
+        return np.real_if_close(np.einsum('ij,ij',-H.A,self.G-(np.eye(self.L)-self.G.conj())) + np.einsum('ij,ij',H.B, self.F.conj().T-self.F)   )
         
     def set_correlation_functions(self):
         self.G = self.U@self.U.conj().T
         self.F = self.U@self.V.conj().T
         self.M = np.eye(self.L)-2*(self.G+self.F)
+        
+    def compute_entanglement_entropy_bipartition(self,l):
+
+        A = np.zeros((2*l,2*l),complex)
+        
+        A[:l,:l] = -1j*(self.G[:l,:l]-self.G[:l,:l].T + (self.F[:l,:l] - self.F[:l,:l].conj()) )
+        A[:l,l:] = - np.eye(l) + self.G[:l,:l] + self.G[:l,:l].T - self.F[:l,:l] - self.F[:l,:l].conj() 
+        A[l:,:l] = + np.eye(l) - self.G[:l,:l] - self.G[:l,:l].T - self.F[:l,:l] - self.F[:l,:l].conj() 
+        A[l:,l:] = -1j*( self.G[:l,:l]-self.G[:l,:l].T - (self.F[:l,:l] - self.F[:l,:l].conj()) )
+        self.A = A
+        Lambda = np.linalg.eigvalsh(1j*A)[l:]
+        Pq = (1+Lambda)/2
+        return -(xlogy(Pq,Pq)+xlogy(np.abs(1.-Pq),np.abs(1.-Pq))).sum()
+    
+    def compute_entanglement_entropy(self):
+        l_space = np.arange(1,self.L)
+        self.set_correlation_functions()
+        return np.array([self.compute_entanglement_entropy_bipartition(l) for l in l_space])
