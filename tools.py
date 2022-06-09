@@ -100,7 +100,6 @@ class correlation_functions:
         self.M = np.eye(self.L)-2*(self.G+self.F)
         
     def compute_entanglement_entropy_bipartition(self,l):
-
         A = np.zeros((2*l,2*l),complex)
         
         A[:l,:l] = -1j*(self.G[:l,:l]-self.G[:l,:l].T + (self.F[:l,:l] - self.F[:l,:l].conj()) )

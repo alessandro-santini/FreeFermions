@@ -23,6 +23,7 @@ class sudden_quench:
     def time_evolve(self,t: float):
         self.wt = self.W1 @ expm(-1j*2.*np.diag(self.eigs1)*t) @ self.W1.T.conj() @ self.w0
         self.corr.set_W(self.wt)
+        self.set_correlation_functions()
     
     def energy(self, FH=None):
         self.corr.setUVfromW()
