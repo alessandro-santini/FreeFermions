@@ -118,6 +118,7 @@ class correlation_functions:
         return np.array([self.compute_entanglement_entropy_bipartition(l) for l in l_space])
     
     def compute_mx(self):
+        # QUESTO E' SBAGLIATO
         L = self.L
         GG = np.zeros((2*L,2*L))
         GG[:L,:L] = self.G
