@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.special import xlogy
+from pfapack.pfaffian import pfaffian
 
 class FermionicHamiltonian:
     def __init__(self, A: np.ndarray, B: np.ndarray):
@@ -115,3 +116,12 @@ class correlation_functions:
         l_space = np.arange(1,self.L)
         self.set_correlation_functions()
         return np.array([self.compute_entanglement_entropy_bipartition(l) for l in l_space])
+    
+    def compute_mx(self):
+        L = self.L
+        GG = np.zeros((2*L,2*L))
+        GG[:L,:L] = self.G
+        GG[L:,:L] = self.F
+        GG[:L,L:] = self.F.T.conj()
+        GG[L:,L:] = np.eye(L)-self.G.T
+        return np.sqrt(pfaffian(GG))

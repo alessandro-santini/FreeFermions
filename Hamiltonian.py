@@ -74,4 +74,5 @@ def QuantumDysonHamiltonian(N,sigma,h,J=1):
     B = -np.triu(V/2)+np.triu(V/2).T
     return FermionicHamiltonian(A, B)
 
+
     
