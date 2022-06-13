@@ -21,7 +21,7 @@ class sudden_quench:
         self.eigs1, self.W1 = H1.eigs_complete, H1.W
     
     def time_evolve(self,t: float):
-        self.wt = np.einsum('ij,j,jk,kl->il',self.W1,np.exp(-1j*2.*self.eigs1*t),self.W1.T.conj(),self.w0)#self.W1 @ expm(-1j*2.*np.diag(self.eigs1)*t) @ self.W1.T.conj() @ self.w0
+        self.wt = np.einsum('ij,j,jk,kl->il',self.W1,np.exp(-1j*2.*self.eigs1*t),self.W1.T.conj(),self.w0,optimize=True)#self.W1 @ expm(-1j*2.*np.diag(self.eigs1)*t) @ self.W1.T.conj() @ self.w0
         self.corr.set_W(self.wt)
         self.set_correlation_functions()
     
