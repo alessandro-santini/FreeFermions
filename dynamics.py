@@ -177,6 +177,7 @@ class SuddenQuench:
             - 'occupation': Site occupation <n_i>
             - 'entropy': Entanglement entropy profile
             - 'mz': Magnetization <sigma^z_i>
+            - 'xx': Longitudinal correlation matrix <sigma^x_i sigma^x_j> (shape: n_times x L x L)
             Default is ['energy', 'occupation'].
 
         Returns
@@ -205,6 +206,9 @@ class SuddenQuench:
 
             if 'mz' in observables:
                 results['mz'].append(self.correlations.magnetization_z())
+
+            if 'xx' in observables:
+                results['xx'].append(self.correlations.xx_correlator_matrix())
 
         # Convert lists to arrays
         for key in results:
