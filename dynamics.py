@@ -13,6 +13,7 @@ where |psi_0> is the ground state of H0.
 
 import numpy as np
 from typing import Optional, Union, List
+from tqdm import tqdm
 from .core import FermionicHamiltonian
 from .correlators import CorrelationFunctions
 
@@ -162,7 +163,8 @@ class SuddenQuench:
     def time_series(
         self,
         times: np.ndarray,
-        observables: Optional[List[str]] = None
+        observables: Optional[List[str]] = None,
+        progress: bool = True
     ) -> dict:
         """
         Compute time series of observables.
@@ -179,6 +181,8 @@ class SuddenQuench:
             - 'mz': Magnetization <sigma^z_i>
             - 'xx': Longitudinal correlation matrix <sigma^x_i sigma^x_j> (shape: n_times x L x L)
             Default is ['energy', 'occupation'].
+        progress : bool, optional
+            Whether to show a progress bar. Default is True.
 
         Returns
         -------
@@ -192,7 +196,7 @@ class SuddenQuench:
         results = {obs: [] for obs in observables}
         results['times'] = times
 
-        for t in times:
+        for t in tqdm(times, desc="time evolution", disable=not progress):
             self._evolve_to(t)
 
             if 'energy' in observables:
